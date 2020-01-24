@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
@@ -12,75 +13,67 @@ namespace Elise_Admin
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void applyDic(object sender, EventArgs e)
         {
-            try
+            if (cboDictionnary.SelectedItem == null || cboEliseServer.SelectedItem == null)
             {
-                // var res = System.Diagnostics.Process.Start("CMD", @"/k Y:\ELISE\Bin\dictionaryadmin -l 1:f:\""SuperUser\"" -p Elise --allow-data-conversion-with-loss reload ""y:/ELISE/actirismatching_elise1"" elise://vwd-elise01:2800 --verbose");
-
-                System.Diagnostics.Process proc = new Process();
-
-                System.Diagnostics.ProcessStartInfo procStartInfo =
-                   new System.Diagnostics.ProcessStartInfo("cmd.exe", @"/c Y:\ELISE\Bin\dictionaryadmin -l 1:f:\""SuperUser\"" -p Elise --allow-data-conversion-with-loss reload ""y:/ELISE/actirismatching_elise1"" elise://vwd-elise01:2800 --verbose");
-
-                procStartInfo.UseShellExecute = false;
-
-                // The following commands are needed to redirect the standard output.
-                // This means that it will be redirected to the Process.StandardOutput StreamReader.
-                procStartInfo.RedirectStandardOutput = true;
-
-                // Do not create the black window.
-                procStartInfo.CreateNoWindow = true;
-                // Now we create a process, assign its ProcessStartInfo and start it
-
-                proc.StartInfo = procStartInfo;
-                proc.Start();
-
-                // Get the output into a string
-                string result = proc.StandardOutput.ReadToEnd();
-                // Display the command output.
-
-                txtStatus.Text = result;
+                MessageBox.Show("Incomplet");
             }
-            catch (Exception objException)
+            else
             {
-                // Log the exception
+                txtStatus.Text = EliseBL.LoadDictionnary(cboDictionnary.SelectedItem.ToString(), cboEliseServer.SelectedItem.ToString());
             }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            try
+            int cptLine = 2;
+            string[] snapshot = new string[400];
+            snapshot[cptLine] = "+++++>>>        Fichier                dataobject.ed                <<<+++++";
+            cptLine++;
+            string[] DataObject = File.ReadAllLines($@"{cboDictionnary.SelectedItem.ToString()}/dataobject.ed");
+
+            for (int i = 0; i < DataObject.Length; i++)
             {
-                System.Diagnostics.Process proc = new Process();
-
-                System.Diagnostics.ProcessStartInfo procStartInfo =
-                   new System.Diagnostics.ProcessStartInfo("net", @"use K: \\vwd-elise01\c$");
-
-                procStartInfo.UseShellExecute = false;
-
-                // The following commands are needed to redirect the standard output.
-                // This means that it will be redirected to the Process.StandardOutput StreamReader.
-                procStartInfo.RedirectStandardOutput = true;
-
-                // Do not create the black window.
-                procStartInfo.CreateNoWindow = false;
-                // Now we create a process, assign its ProcessStartInfo and start it
-
-                proc.StartInfo = procStartInfo;
-                proc.Start();
-
-                // Get the output into a string
-                string result = proc.StandardOutput.ReadToEnd();
-                //System.Diagnostics.Process.Start("net.exe", @"use K: ""\\vwd-elise01\c$""");
+                cptLine++;
+                snapshot[cptLine] = DataObject[i];
             }
-            catch (Exception hh)
+
+            var allProducts = Directory.GetFiles($@"{cboDictionnary.SelectedItem.ToString()}/product");
+
+            foreach (string prod in allProducts)
             {
-                throw;
+                cptLine++;
+                snapshot[cptLine] = $"+++++>>>                     Fichier      {prod}            <<< +++++";
+                string[] prodContent = File.ReadAllLines($@"{prod}");
+                cptLine++;
+                for (int i = 0; i < prodContent.Length; i++)
+                {
+                    cptLine++;
+                    snapshot[cptLine] = prodContent[i];
+                }
             }
         }
 
         private void Form1_Load(object sender, EventArgs e)
+        {
+            var allDics = Directory.GetDirectories("y:/EliseDictionnaries");
+
+            foreach (string dic in allDics)
+            {
+                cboDictionnary.Items.Add(dic);
+            }
+
+            cboEliseServer.Items.Add("elise://vwd-elise01:2800");
+            cboEliseServer.Items.Add("elise://vwd-elise01:2900");
+            cboEliseServer.Items.Add("elise://vwd-elise01:2901");
+
+            cboEliseServer.SelectedIndex = 0;
+
+            cboDictionnary.SelectedIndex = 0;
+        }
+
+        private void label2_Click(object sender, EventArgs e)
         {
         }
     }
