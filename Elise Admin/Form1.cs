@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Elise_Admin
@@ -21,7 +22,27 @@ namespace Elise_Admin
             }
             else
             {
-                txtStatus.Text = EliseBL.LoadDictionnary(cboDictionnary.SelectedItem.ToString(), cboEliseServer.SelectedItem.ToString());
+                //txtStatus.Text = EliseBL.LoadDictionnary(cboDictionnary.SelectedItem.ToString(), cboEliseServer.SelectedItem.ToString());
+
+                bool applyOk = false;
+
+                applyOk = Regex.Matches(txtStatus.Text, "Dictionary parse failed").Count == 0;
+
+                applyOk = (Regex.Matches(txtStatus.Text, "Dictionary version").Count == 1 || Regex.Matches(txtStatus.Text, "ReloadDictionary").Count == 2);
+
+                var snap = EliseBL.CreateSnapshot(cboDictionnary.SelectedItem.ToString(), cboEliseServer.SelectedItem.ToString());
+
+                //string path = $@"y:/EliseDictionnaries/Logs/{cboDictionnary.SelectedItem.ToString().Substring()}--on--{cboEliseServer.SelectedItem.ToString()}--{DateTime.Now.ToShortTimeString()}.txt";
+
+                string path = $@"y:/EliseDictionnaries/Logs/dic1--on--elise1.txt";
+
+                using (StreamWriter file = new StreamWriter(path, true))
+                {
+                    foreach (string line in snap)
+                    {
+                        file.WriteLine(line);
+                    }
+                }
             }
         }
 
