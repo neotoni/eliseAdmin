@@ -58,7 +58,8 @@
             this.txtStatus.Location = new System.Drawing.Point(51, 47);
             this.txtStatus.Multiline = true;
             this.txtStatus.Name = "txtStatus";
-            this.txtStatus.Size = new System.Drawing.Size(367, 155);
+            this.txtStatus.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtStatus.Size = new System.Drawing.Size(588, 401);
             this.txtStatus.TabIndex = 2;
             // 
             // Form1

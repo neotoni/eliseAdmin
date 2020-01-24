@@ -50,8 +50,34 @@ namespace Elise_Admin
 
         private void button2_Click(object sender, EventArgs e)
         {
-            Utility.NetworkDrive.MapNetworkDrive("R", @"\\vwd-elise01\c$");
-            var dirs1 = Directory.GetDirectories("R:");
+            try
+            {
+                System.Diagnostics.Process proc = new Process();
+
+                System.Diagnostics.ProcessStartInfo procStartInfo =
+                   new System.Diagnostics.ProcessStartInfo("net", @"use K: \\vwd-elise01\c$");
+
+                procStartInfo.UseShellExecute = false;
+
+                // The following commands are needed to redirect the standard output.
+                // This means that it will be redirected to the Process.StandardOutput StreamReader.
+                procStartInfo.RedirectStandardOutput = true;
+
+                // Do not create the black window.
+                procStartInfo.CreateNoWindow = false;
+                // Now we create a process, assign its ProcessStartInfo and start it
+
+                proc.StartInfo = procStartInfo;
+                proc.Start();
+
+                // Get the output into a string
+                string result = proc.StandardOutput.ReadToEnd();
+                //System.Diagnostics.Process.Start("net.exe", @"use K: ""\\vwd-elise01\c$""");
+            }
+            catch (Exception hh)
+            {
+                throw;
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
