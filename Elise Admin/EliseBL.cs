@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 
@@ -10,10 +11,12 @@ namespace Elise_Admin
         {
             try
             {
+                string processPath = ConfigurationManager.AppSettings["processPath"];
+
                 Process proc = new Process();
 
                 ProcessStartInfo procStartInfo =
-                   new ProcessStartInfo("cmd.exe", $@"/c Y:\ELISE\Bin\dictionaryadmin -l 1:f:\""SuperUser\"" -p Elise --allow-data-conversion-with-loss reload ""{dicPath}"" {eliseServer} --verbose");
+                   new ProcessStartInfo("cmd.exe", $@"/c {processPath} -l 1:f:\""SuperUser\"" -p Elise --allow-data-conversion-with-loss reload ""{dicPath}"" {eliseServer} --verbose");
 
                 //ProcessStartInfo procStartInfo =
                 //new ProcessStartInfo("cmd.exe", $@"/c Y:\ELISE\Bin\dictionaryadmin -l 1:f:\""SuperUser\"" -p Elise --allow-data-conversion-with-loss reload ""y:/EliseDictionnaries/actirismatching_elise1"" {eliseServer} --verbose");

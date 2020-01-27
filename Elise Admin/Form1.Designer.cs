@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.btnApplyDic = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
             this.txtStatus = new System.Windows.Forms.TextBox();
             this.cboDictionnary = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -46,16 +45,6 @@
             this.btnApplyDic.Text = "applydic";
             this.btnApplyDic.UseVisualStyleBackColor = true;
             this.btnApplyDic.Click += new System.EventHandler(this.applyDic);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(673, 216);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // txtStatus
             // 
@@ -111,7 +100,6 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cboDictionnary);
             this.Controls.Add(this.txtStatus);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.btnApplyDic);
             this.Name = "Form1";
             this.Text = "Elise Admin";
@@ -124,7 +112,6 @@
         #endregion
 
         private System.Windows.Forms.Button btnApplyDic;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TextBox txtStatus;
         private System.Windows.Forms.ComboBox cboDictionnary;
         private System.Windows.Forms.Label label1;

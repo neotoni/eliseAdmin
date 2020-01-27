@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Configuration;
 
 namespace Elise_Admin
 {
@@ -16,78 +17,86 @@ namespace Elise_Admin
 
         private void applyDic(object sender, EventArgs e)
         {
+            txtStatus.Text = string.Empty;
+
+            Cursor.Current = Cursors.WaitCursor;
+
             if (cboDictionnary.SelectedItem == null || cboEliseServer.SelectedItem == null)
             {
                 MessageBox.Show("Incomplet");
             }
             else
             {
-                //txtStatus.Text = EliseBL.LoadDictionnary(cboDictionnary.SelectedItem.ToString(), cboEliseServer.SelectedItem.ToString());
+                txtStatus.Text = EliseBL.LoadDictionnary(cboDictionnary.SelectedItem.ToString(), cboEliseServer.SelectedItem.ToString());
 
-                bool applyOk = false;
+                bool updateDicStatus = CheckUpdate(txtStatus.Text);
 
-                applyOk = Regex.Matches(txtStatus.Text, "Dictionary parse failed").Count == 0;
+                string dtCreation = (DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString()).Replace(':', 'h');
 
-                applyOk = (Regex.Matches(txtStatus.Text, "Dictionary version").Count == 1 || Regex.Matches(txtStatus.Text, "ReloadDictionary").Count == 2);
+                string dic = cboDictionnary.SelectedItem.ToString().Replace('\\', ' ').Replace('/', ' ').Replace(':', ' ');
 
-                var snap = EliseBL.CreateSnapshot(cboDictionnary.SelectedItem.ToString(), cboEliseServer.SelectedItem.ToString());
+                string server = cboEliseServer.SelectedItem.ToString().Replace('\\', ' ').Replace('/', ' ').Replace(':', ' ');
 
-                //string path = $@"y:/EliseDictionnaries/Logs/{cboDictionnary.SelectedItem.ToString().Substring()}--on--{cboEliseServer.SelectedItem.ToString()}--{DateTime.Now.ToShortTimeString()}.txt";
+                LogGeneral(server, dic, txtStatus.Text, dtCreation, updateDicStatus);
 
-                string path = $@"y:/EliseDictionnaries/Logs/dic1--on--elise1.txt";
+                LogCurrent(server, dic, dtCreation);
+            }
+            Cursor.Current = Cursors.Default;
+        }
 
-                using (StreamWriter file = new StreamWriter(path, true))
+        private bool CheckUpdate(string text)
+        {
+            bool applyOk = false;
+
+            applyOk = Regex.Matches(text, "Dictionary parse failed").Count == 0;
+
+            applyOk = (Regex.Matches(text, "Dictionary version").Count == 1 || Regex.Matches(text, "ReloadDictionary").Count == 2);
+
+            return applyOk;
+        }
+
+        private void LogCurrent(string server, string dic, string dtCreation)
+        {
+            var snap = EliseBL.CreateSnapshot(cboDictionnary.SelectedItem.ToString(), cboEliseServer.SelectedItem.ToString());
+
+            string path = $@" {ConfigurationManager.AppSettings["logPath"]}/{dic} on {server} at {dtCreation}.txt";
+
+            using (StreamWriter file = new StreamWriter(path, true))
+            {
+                foreach (string line in snap)
                 {
-                    foreach (string line in snap)
-                    {
-                        file.WriteLine(line);
-                    }
+                    file.WriteLine(line);
                 }
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void LogGeneral(string server, string dic, string cmdResult, string dtCreation, bool updateDicStatus)
         {
-            int cptLine = 2;
-            string[] snapshot = new string[400];
-            snapshot[cptLine] = "+++++>>>        Fichier                dataobject.ed                <<<+++++";
-            cptLine++;
-            string[] DataObject = File.ReadAllLines($@"{cboDictionnary.SelectedItem.ToString()}/dataobject.ed");
+            string path = $@" {ConfigurationManager.AppSettings["logPath"]}/GeneralLog.txt";
 
-            for (int i = 0; i < DataObject.Length; i++)
+            string status = updateDicStatus ? "OK" : "! NO OK";
+
+            using (StreamWriter file = new StreamWriter(path, true))
             {
-                cptLine++;
-                snapshot[cptLine] = DataObject[i];
-            }
-
-            var allProducts = Directory.GetFiles($@"{cboDictionnary.SelectedItem.ToString()}/product");
-
-            foreach (string prod in allProducts)
-            {
-                cptLine++;
-                snapshot[cptLine] = $"+++++>>>                     Fichier      {prod}            <<< +++++";
-                string[] prodContent = File.ReadAllLines($@"{prod}");
-                cptLine++;
-                for (int i = 0; i < prodContent.Length; i++)
-                {
-                    cptLine++;
-                    snapshot[cptLine] = prodContent[i];
-                }
+                file.WriteLine($"{status} Dic {dic} deployed on {server} at {dtCreation}");
             }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            var allDics = Directory.GetDirectories("y:/EliseDictionnaries");
+            var allDics = Directory.GetDirectories(ConfigurationManager.AppSettings["dicPath"]);
 
             foreach (string dic in allDics)
             {
-                cboDictionnary.Items.Add(dic);
+                if (!dic.Contains("Logs"))
+                    cboDictionnary.Items.Add(dic);
             }
 
-            cboEliseServer.Items.Add("elise://vwd-elise01:2800");
-            cboEliseServer.Items.Add("elise://vwd-elise01:2900");
-            cboEliseServer.Items.Add("elise://vwd-elise01:2901");
+            cboEliseServer.Items.Add(ConfigurationManager.AppSettings["srvDEV"]);
+            cboEliseServer.Items.Add(ConfigurationManager.AppSettings["srvTEST"]);
+            cboEliseServer.Items.Add(ConfigurationManager.AppSettings["srvPROD"]);
+            cboEliseServer.Items.Add(ConfigurationManager.AppSettings["srvS1"]);
+            cboEliseServer.Items.Add(ConfigurationManager.AppSettings["srvS2"]);
 
             cboEliseServer.SelectedIndex = 0;
 
